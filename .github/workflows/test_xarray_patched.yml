@@ -1,0 +1,38 @@
+on:
+  push:
+    branches: ["**"]
+
+jobs:
+  TestXarrayPatched:
+    name: xarray=${{ matrix.xarray_version }} (patched) os=${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest"]
+        xarray_version:
+          [
+            "0.14.1",
+            "0.15.1",
+            "0.16.2",
+            "0.17.0",
+            "0.18.2",
+            "0.19.0",
+          ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          channels: conda-forge
+          activate-environment: reskit_env
+          conda-remove-defaults: true
+      - name: Run tests
+        shell: pwsh
+        run: |
+          mamba create --name test_env xarray=${{ matrix.xarray_version }} "setuptools<82"
+          echo "Installation done"
+          mamba list --name test_env
+          echo "start test"
+          mamba run --name test_env python test_xarray.py

@@ -1,0 +1,41 @@
+on:
+  push:
+    branches: ["**"]
+
+jobs:
+  TestXarrayPandasOld:
+    name: xarray=${{ matrix.xarray_version }} pandas=${{ matrix.pandas_constraint }} os=${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest"]
+        include:
+          # xarray 0.8.x uses pandas.tslib, removed in pandas 0.24
+          - xarray_version: "0.8.2"
+            pandas_constraint: "pandas<0.24"
+            os: "ubuntu-latest"
+          # xarray 0.10.x-0.11.x uses pd.Panel, removed in pandas 1.0
+          - xarray_version: "0.10.9"
+            pandas_constraint: "pandas<1.0"
+            os: "ubuntu-latest"
+          - xarray_version: "0.11.3"
+            pandas_constraint: "pandas<1.0"
+            os: "ubuntu-latest"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          channels: conda-forge
+          activate-environment: reskit_env
+          conda-remove-defaults: true
+      - name: Run tests
+        shell: pwsh
+        run: |
+          mamba create --name test_env xarray=${{ matrix.xarray_version }} "${{ matrix.pandas_constraint }}"
+          echo "Installation done"
+          mamba list --name test_env
+          echo "start test"
+          mamba run --name test_env python test_xarray.py
