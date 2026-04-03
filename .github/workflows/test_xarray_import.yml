@@ -1,0 +1,58 @@
+on:
+  push:
+    branches: ["**"]
+
+jobs:
+  TestXarrayImport:
+    name: xarray=${{ matrix.xarray_version }} os=${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest"]
+        xarray_version:
+          [
+            "2026.2.0",
+            "2026.1.0",
+            "2025.12.0",
+            "2025.9.0",
+            "2025.6.0",
+            "2025.3.0",
+            "2025.1.0",
+            "2024.9.0",
+            "2024.6.0",
+            "2024.3.0",
+            "2024.1.0",
+            "2023.9.0",
+            "2023.6.0",
+            "2023.1.0",
+            "2022.12.0",
+            "2022.9.0",
+            "2022.6.0",
+            "2022.3.0",
+            "0.21.1",
+            "0.20.2",
+            "0.19.0",
+            "0.18.2",
+            "0.17.0",
+            "0.16.2",
+            "0.15.1",
+            "0.14.1",
+          ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - uses: conda-incubator/setup-miniconda@v3
+        with:
+          miniforge-version: latest
+          channels: conda-forge
+          activate-environment: reskit_env
+          conda-remove-defaults: true
+      - name: Run tests
+        shell: pwsh
+        run: |
+          mamba create --name test_env xarray=${{ matrix.xarray_version }}
+          echo "Installation done"
+          mamba list --name test_env
+          echo "start test"
+          mamba run --name test_env python test_xarray.py
