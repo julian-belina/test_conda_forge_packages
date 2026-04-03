@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Read(//c/Programming/conda-forge-repodata-patches-feedstock/**)",
-      "Bash(python -c \"import time; print\\(f'{time.time\\(\\):.0f}000'\\)\")",
-      "Bash(python3 -c \"import time; print\\(f'{time.time\\(\\):.0f}000'\\)\")"
-    ]
-  }
-}
